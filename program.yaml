@@ -1,0 +1,120 @@
+project: demo-program
+run_root: runs
+seed: 1337
+target_id:
+  min_abs_log2fc: 1.0
+  max_fdr: 0.05
+  dependency_threshold: -0.5
+  normal_essentiality_penalty: 2.0
+  weights:
+    differential_expression: 0.2
+    dependency: 0.3
+    druggability: 0.25
+    safety: 0.15
+    tractability_evidence: 0.1
+featurizer:
+  kind: ecfp_desc
+  fp_radius: 2
+  fp_bits: 2048
+  use_counts: true
+  use_chirality: true
+  descriptor_set: core
+split:
+  strategy: scaffold
+  test_frac: 0.2
+  valid_frac: 0.1
+  seed: 1337
+  date_column: null
+activity_model:
+  kind: xgboost
+  task: regression
+  n_ensemble: 5
+  n_estimators: 600
+  max_depth: 7
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.6
+  min_child_weight: 3.0
+  reg_lambda: 1.0
+  early_stopping_rounds: 50
+  seed: 1337
+  n_jobs: -1
+admet_model:
+  kind: xgboost
+  task: regression
+  n_ensemble: 5
+  n_estimators: 600
+  max_depth: 7
+  learning_rate: 0.05
+  subsample: 0.8
+  colsample_bytree: 0.6
+  min_child_weight: 3.0
+  reg_lambda: 1.0
+  early_stopping_rounds: 50
+  seed: 1337
+  n_jobs: -1
+applicability:
+  enabled: true
+  k_neighbours: 5
+  min_mean_similarity: 0.25
+hit_discovery:
+  apply_pains: true
+  apply_brenk: true
+  apply_nih: false
+  mw_range:
+  - 200.0
+  - 480.0
+  clogp_range:
+  - -1.0
+  - 4.5
+  max_rotatable_bonds: 8
+  max_hbd: 4
+  max_tpsa: 120.0
+  n_hits: 200
+  min_predicted_activity: 6.0
+  max_pairwise_similarity: 0.7
+  exploration_frac: 0.25
+lead_opt:
+  objectives:
+  - endpoint: pIC50
+    kind: higher_better
+    low: 6.0
+    high: 9.0
+    weight: 3.0
+    critical: true
+  - endpoint: logS
+    kind: higher_better
+    low: -6.0
+    high: -3.5
+    weight: 1.5
+    critical: false
+  - endpoint: logD
+    kind: window
+    low: 1.0
+    high: 3.5
+    weight: 1.0
+    critical: false
+  - endpoint: hlm_clint
+    kind: lower_better
+    low: 10.0
+    high: 60.0
+    weight: 2.0
+    critical: false
+  - endpoint: herg_pic50
+    kind: lower_better
+    low: 4.5
+    high: 6.0
+    weight: 2.0
+    critical: true
+  - endpoint: caco2_papp
+    kind: higher_better
+    low: -6.5
+    high: -5.0
+    weight: 1.0
+    critical: false
+  n_analogs_per_seed: 300
+  n_seeds: 20
+  max_generations: 3
+  min_similarity_to_seed: 0.4
+  max_sa_score: 4.5
+  n_final_candidates: 25
